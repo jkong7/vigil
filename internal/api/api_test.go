@@ -8,10 +8,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jkong7/vigil/internal/backlog"
 	"github.com/jkong7/vigil/internal/check"
+	"github.com/jkong7/vigil/internal/claude"
 	"github.com/jkong7/vigil/internal/config"
 	"github.com/jkong7/vigil/internal/metrics"
+	"github.com/jkong7/vigil/internal/repos"
 	"github.com/jkong7/vigil/internal/state"
+	"github.com/jkong7/vigil/internal/today"
 )
 
 type fakeHistory struct{}
@@ -82,5 +86,62 @@ func TestStaticAndMetrics(t *testing.T) {
 			t.Fatalf("GET %s = %v %v", path, resp.StatusCode, err)
 		}
 		resp.Body.Close()
+	}
+}
+
+type fakeWorkbench struct{}
+
+func (fakeWorkbench) Sessions() []claude.Session {
+	return []claude.Session{
+		{ID: "a", Repos: map[string]int{"app": 1}, Live: &claude.Live{Status: "busy"}},
+		{ID: "b", Repos: map[string]int{"api": 1}},
+	}
+}
+func (fakeWorkbench) Repos() []repos.Repo { return nil }
+func (fakeWorkbench) Backlog() []backlog.Item {
+	return []backlog.Item{{Text: "open"}, {Text: "closed", Done: true}}
+}
+func (fakeWorkbench) Activity(days int) []claude.Day { return make([]claude.Day, days) }
+func (fakeWorkbench) Plan() today.Plan {
+	return today.Plan{Suggestions: []today.Suggestion{{Kind: today.Backlog, Title: "open"}}}
+}
+
+func TestWorkbenchEndpoints(t *testing.T) {
+	tr := state.NewTracker(nil, 1)
+	srv := httptest.NewServer((&Server{Tracker: tr, Workbench: fakeWorkbench{}}).Handler())
+	defer srv.Close()
+	var sessions []claude.Session
+	if get(t, srv.URL+"/api/sessions?live=1", &sessions); len(sessions) != 1 || sessions[0].ID != "a" {
+		t.Fatalf("live sessions = %+v", sessions)
+	}
+	if get(t, srv.URL+"/api/sessions?repo=api", &sessions); len(sessions) != 1 || sessions[0].ID != "b" {
+		t.Fatalf("repo sessions = %+v", sessions)
+	}
+	var items []backlog.Item
+	if get(t, srv.URL+"/api/backlog", &items); len(items) != 1 {
+		t.Fatalf("open backlog = %+v", items)
+	}
+	if get(t, srv.URL+"/api/backlog?all=1", &items); len(items) != 2 {
+		t.Fatalf("all backlog = %+v", items)
+	}
+	var list []repos.Repo
+	if code := get(t, srv.URL+"/api/repos", &list); code != 200 || list == nil {
+		t.Fatalf("repos = %d %v", code, list)
+	}
+	var days []claude.Day
+	if get(t, srv.URL+"/api/activity?days=5", &days); len(days) != 5 {
+		t.Fatalf("activity = %d days", len(days))
+	}
+	var plan today.Plan
+	if get(t, srv.URL+"/api/today", &plan); len(plan.Suggestions) != 1 {
+		t.Fatalf("plan = %+v", plan)
+	}
+}
+
+func TestWorkbenchEndpointsAbsentWhenDisabled(t *testing.T) {
+	srv := server(nil)
+	defer srv.Close()
+	if code := get(t, srv.URL+"/api/today", nil); code != 404 {
+		t.Fatalf("/api/today without a workbench = %d, want 404", code)
 	}
 }
