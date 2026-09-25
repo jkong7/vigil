@@ -14,6 +14,8 @@ type Prober interface {
 	Probe(ctx context.Context, m config.Monitor) check.Result
 }
 
+const maxStartDelay = 5 * time.Second
+
 type Scheduler struct {
 	Prober Prober
 	Jitter func(time.Duration) time.Duration
@@ -21,7 +23,7 @@ type Scheduler struct {
 
 func New(p Prober) *Scheduler {
 	return &Scheduler{Prober: p, Jitter: func(d time.Duration) time.Duration {
-		return time.Duration(rand.Int64N(int64(d)))
+		return time.Duration(rand.Int64N(int64(min(d, maxStartDelay))))
 	}}
 }
 
