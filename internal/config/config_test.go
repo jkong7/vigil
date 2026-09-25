@@ -1,6 +1,7 @@
 package config
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -30,5 +31,19 @@ func TestValidateRejects(t *testing.T) {
 		if _, err := Parse([]byte(raw)); err == nil {
 			t.Errorf("%s: expected error", name)
 		}
+	}
+}
+
+func TestWorkbenchDefaultsExpandHome(t *testing.T) {
+	c, err := Parse([]byte("workbench:\n  enabled: true\n  backlog_files:\n    inbox: ~/inbox.md\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := c.Workbench
+	if !w.Enabled || w.Refresh != 30*time.Second || strings.HasPrefix(w.ClaudeDir, "~") || !strings.HasSuffix(w.ReposRoot, "/dev") {
+		t.Fatalf("workbench defaults: %+v", w)
+	}
+	if strings.HasPrefix(w.BacklogFiles["inbox"], "~") {
+		t.Fatalf("backlog file not expanded: %v", w.BacklogFiles)
 	}
 }

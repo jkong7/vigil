@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -24,6 +26,24 @@ type Config struct {
 	DatabaseURL string    `yaml:"database_url"`
 	Kafka       Kafka     `yaml:"kafka"`
 	Monitors    []Monitor `yaml:"monitors"`
+	Workbench   Workbench `yaml:"workbench"`
+}
+
+type Workbench struct {
+	Enabled      bool              `yaml:"enabled"`
+	ClaudeDir    string            `yaml:"claude_dir"`
+	ReposRoot    string            `yaml:"repos_root"`
+	BacklogFiles map[string]string `yaml:"backlog_files"`
+	Refresh      time.Duration     `yaml:"refresh"`
+}
+
+func ExpandHome(p string) string {
+	if p == "~" || strings.HasPrefix(p, "~/") {
+		if home, err := os.UserHomeDir(); err == nil {
+			return filepath.Join(home, strings.TrimPrefix(p, "~"))
+		}
+	}
+	return p
 }
 
 type Kafka struct {
@@ -58,6 +78,20 @@ func (c *Config) applyDefaults() {
 	}
 	if c.Kafka.IncidentsTopic == "" {
 		c.Kafka.IncidentsTopic = "vigil.incidents"
+	}
+	w := &c.Workbench
+	if w.ClaudeDir == "" {
+		w.ClaudeDir = "~/.claude"
+	}
+	if w.ReposRoot == "" {
+		w.ReposRoot = "~/dev"
+	}
+	if w.Refresh == 0 {
+		w.Refresh = 30 * time.Second
+	}
+	w.ClaudeDir, w.ReposRoot = ExpandHome(w.ClaudeDir), ExpandHome(w.ReposRoot)
+	for k, v := range w.BacklogFiles {
+		w.BacklogFiles[k] = ExpandHome(v)
 	}
 	for i := range c.Monitors {
 		m := &c.Monitors[i]
