@@ -1,0 +1,2 @@
+{"type":"user","sessionId":"bbb","cwd":"/Users/me/dev/api","timestamp":"2026-09-25T10:00:00Z","origin":{"kind":"human"},"message":{"role":"user","content":"fix the tests"}}
+{"type":"assistant","sessionId":"bbb","timestamp":"2026-09-25T10:00:03Z","message":{"model":"claude-sonnet-5","content":[{"type":"text","text":"done"}]}}
