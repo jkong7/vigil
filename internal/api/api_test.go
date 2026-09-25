@@ -80,7 +80,7 @@ func TestIncidentsWithoutHistory(t *testing.T) {
 func TestStaticAndMetrics(t *testing.T) {
 	srv := server(nil)
 	defer srv.Close()
-	for _, path := range []string{"/", "/app.js", "/healthz", "/metrics"} {
+	for _, path := range []string{"/", "/status.html", "/dashboard.js", "/app.js", "/healthz", "/metrics"} {
 		resp, err := http.Get(srv.URL + path)
 		if err != nil || resp.StatusCode != 200 {
 			t.Fatalf("GET %s = %v %v", path, resp.StatusCode, err)

@@ -3,22 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Status</title>
-<link rel="stylesheet" href="style.css">
+<title>Workbench</title>
+<link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-<main>
-  <header>
-    <h1>Status</h1>
-    <p id="summary" class="summary">Loading…</p>
-  </header>
-  <section id="monitors" aria-live="polite"></section>
-  <section>
-    <h2>Recent incidents</h2>
-    <ul id="incidents" class="incidents"></ul>
+<header class="top">
+  <div>
+    <h1>Workbench</h1>
+    <p id="date" class="muted"></p>
+  </div>
+  <div class="pills">
+    <span id="pill-live" class="pill">– live</span>
+    <span id="pill-monitors" class="pill">– monitors</span>
+  </div>
+</header>
+
+<main class="grid">
+  <section class="card span-2 wb">
+    <div class="card-head"><h2>What to build today</h2><span id="focus" class="muted small"></span></div>
+    <ol id="today" class="today"></ol>
   </section>
-  <footer>Updated <time id="updated">never</time> · <a href="/metrics">metrics</a> · <a href="/api/monitors">api</a></footer>
+
+  <section class="card wb">
+    <div class="card-head"><h2>Live sessions</h2><span id="live-count" class="muted small"></span></div>
+    <ul id="live" class="live"></ul>
+  </section>
+
+  <section class="card span-2 wb">
+    <div class="card-head"><h2>Activity</h2><span class="muted small">prompts per day, last 14 days</span></div>
+    <div id="activity" class="activity"></div>
+    <div id="legend" class="legend"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Monitors</h2><a class="small" href="/status.html">status page</a></div>
+    <ul id="monitors" class="monitors"></ul>
+  </section>
+
+  <section class="card span-3 wb">
+    <div class="card-head"><h2>Repos</h2></div>
+    <div class="table-wrap"><table id="repos"><thead><tr>
+      <th>Repo</th><th>Branch</th><th>Sync</th><th>Changes</th><th>Commits today / 7d</th><th>Last commit</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card span-2 wb">
+    <div class="card-head">
+      <h2>Session history</h2>
+      <div class="filters">
+        <input id="q" type="search" placeholder="Search titles and prompts">
+        <select id="repo-filter"><option value="">All repos</option></select>
+      </div>
+    </div>
+    <ul id="history" class="history"></ul>
+  </section>
+
+  <section class="card wb">
+    <div class="card-head"><h2>Backlog</h2><span id="backlog-count" class="muted small"></span></div>
+    <div id="backlog" class="backlog"></div>
+  </section>
 </main>
-<script src="app.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>
