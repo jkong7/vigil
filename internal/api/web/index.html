@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Status</h1>
+    <p id="summary" class="summary">Loading…</p>
+  </header>
+  <section id="monitors" aria-live="polite"></section>
+  <section>
+    <h2>Recent incidents</h2>
+    <ul id="incidents" class="incidents"></ul>
+  </section>
+  <footer>Updated <time id="updated">never</time> · <a href="/metrics">metrics</a> · <a href="/api/monitors">api</a></footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
