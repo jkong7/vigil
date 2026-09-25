@@ -1,0 +1,17 @@
+listen: ":8080"
+database_url: "${DATABASE_URL}"
+kafka:
+  brokers: ["${KAFKA_BROKER}"]
+monitors:
+  - name: github
+    target: https://github.com
+    interval: 30s
+  - name: example-api
+    target: https://example.com
+    contains: Example Domain
+    interval: 1m
+  - name: postgres
+    type: tcp
+    target: postgres:5432
+    interval: 15s
+    timeout: 3s

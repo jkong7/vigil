@@ -1,0 +1,5 @@
+vigil.yaml
+/bin/
+.env
+*.tfstate*
+.terraform/
