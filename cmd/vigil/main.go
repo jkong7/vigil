@@ -19,6 +19,7 @@ import (
 	"github.com/jkong7/vigil/internal/scheduler"
 	"github.com/jkong7/vigil/internal/state"
 	"github.com/jkong7/vigil/internal/store"
+	"github.com/jkong7/vigil/internal/workbench"
 )
 
 const window = 1440
@@ -44,6 +45,15 @@ func run(path string, log *slog.Logger) error {
 	tracker := state.NewTracker(cfg.Monitors, window)
 	m := metrics.New()
 	srv := &api.Server{Tracker: tracker, Registry: m.Registry}
+
+	if cfg.Workbench.Enabled {
+		wb := workbench.New(cfg.Workbench, tracker)
+		if err := wb.Refresh(ctx); err != nil {
+			log.Warn("workbench first refresh", "err", err)
+		}
+		go wb.Run(ctx, log)
+		srv.Workbench = wb
+	}
 
 	var db *store.Store
 	if cfg.DatabaseURL != "" {
@@ -74,7 +84,7 @@ func run(path string, log *slog.Logger) error {
 		defer cancel()
 		httpSrv.Shutdown(shutdown)
 	}()
-	log.Info("vigil listening", "addr", cfg.Listen, "monitors", len(cfg.Monitors), "postgres", db != nil)
+	log.Info("vigil listening", "addr", cfg.Listen, "monitors", len(cfg.Monitors), "postgres", db != nil, "workbench", cfg.Workbench.Enabled)
 	if err := httpSrv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

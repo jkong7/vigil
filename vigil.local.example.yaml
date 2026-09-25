@@ -1,0 +1,17 @@
+listen: "127.0.0.1:7777"
+workbench:
+  enabled: true
+  claude_dir: ~/.claude
+  repos_root: ~/dev
+  refresh: 30s
+  backlog_files:
+    inbox: ~/.local/share/flowkit/inbox.md
+monitors:
+  - name: github
+    target: https://www.githubstatus.com/api/v2/status.json
+    contains: '"indicator":"none"'
+    interval: 2m
+  - name: claude
+    target: https://status.claude.com/api/v2/status.json
+    contains: '"indicator":"none"'
+    interval: 2m
