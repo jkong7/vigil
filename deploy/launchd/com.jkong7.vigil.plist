@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.jkong7.vigil</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__HOME__/.local/bin/vigil</string>
+    <string>-config</string>
+    <string>__HOME__/.config/vigil/vigil.yaml</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>__HOME__/Library/Logs/vigil.log</string>
+  <key>StandardErrorPath</key>
+  <string>__HOME__/Library/Logs/vigil.log</string>
+</dict>
+</plist>
