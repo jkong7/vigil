@@ -151,9 +151,10 @@ function renderRepos(repos) {
 
 function renderMonitors(monitors) {
   const down = monitors.filter((m) => m.status === "down").length;
+  const up = monitors.filter((m) => m.status === "up").length;
   const pill = $("pill-monitors");
-  pill.textContent = monitors.length ? (down ? `${down} down` : `${monitors.length} monitors up`) : "no monitors";
-  pill.className = "pill " + (down ? "bad" : monitors.length ? "ok" : "");
+  pill.textContent = !monitors.length ? "no monitors" : down ? `${down} down` : `${up}/${monitors.length} monitors up`;
+  pill.className = "pill " + (down ? "bad" : monitors.length && up === monitors.length ? "ok" : "");
   $("monitors").replaceChildren(...(monitors.length ? monitors.map((m) => {
     const li = el("li");
     const name = el("span");
