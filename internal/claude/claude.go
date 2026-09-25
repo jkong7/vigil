@@ -207,7 +207,7 @@ func (s *Session) apply(l *line, models map[string]bool, root *regexp.Regexp) {
 				if root != nil {
 					seen := map[string]bool{}
 					for _, m := range root.FindAllSubmatch(b.Input, -1) {
-						if name := string(m[1]); !seen[name] && !strings.HasPrefix(name, ".") {
+						if name := strings.TrimRight(string(m[1]), "."); name != "" && !seen[name] && !strings.HasPrefix(name, ".") {
 							seen[name] = true
 							s.Repos[name]++
 						}
